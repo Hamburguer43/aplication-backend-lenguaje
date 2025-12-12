@@ -14,7 +14,7 @@ export const getAlimentos = async () => {
 
 }
 
-export const deleteAlimento = async (id_alimento) => {
+export const deleteAlimento = async (id) => {
     
     const alimentos_query = {
         text: `
@@ -22,7 +22,7 @@ export const deleteAlimento = async (id_alimento) => {
             WHERE id_alimento = $1
             RETURNING *;
         `,
-        values: [id_alimento]
+        values: [id]
     };
 
     const { rows } = await pool.query(alimentos_query);

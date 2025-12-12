@@ -7,7 +7,8 @@ export const getAntropometria = async (cod_hm) => {
 
     const antropometria_query = {
         text: `SELECT * FROM antropometria 
-        WHERE cod_hm = $1`,
+        WHERE cod_hm = $1 
+        ORDER BY fecha_medicion DESC`,
 
         values: [cod1]
     }
