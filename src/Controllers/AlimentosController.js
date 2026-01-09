@@ -1,5 +1,6 @@
 import { getAlimentos, deleteAlimento, createAlimento } from "../Models/Alimentos.js";
 
+//-- Listar todos los alimentos ------------------------------
 export const getAllAlimentos = async (req, res) => {
 
     try{
@@ -18,6 +19,7 @@ export const getAllAlimentos = async (req, res) => {
 
 }
 
+//-- Eliminar un alimento por id ------------------------------
 export const delete_Alimento = async (req, res) => {
     
    const id = req.params.id
@@ -25,11 +27,17 @@ export const delete_Alimento = async (req, res) => {
     try{
         
         const alimento = await deleteAlimento(id); 
-    
+
+        if (alimento !== null) {
         res.status(200).json({
             msg: `Alimento ${id} eliminado con exito`,
             alimento: alimento
         });
+        } else {
+            res.status(404).json({
+                message: `Alimento con id ${id} no encontrado`
+            });
+        }
 
     }catch(error){
         if (error.status === 404) {
@@ -46,6 +54,7 @@ export const delete_Alimento = async (req, res) => {
 
 }
 
+//-- Crear un nuevo alimento ------------------------------
 export const create_alimentos = async (req, res) => {
 
 const {

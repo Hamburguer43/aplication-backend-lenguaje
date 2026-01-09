@@ -1,4 +1,6 @@
 import { CreateNewAntropometria, getAntropometria } from "../Models/Historial_medico.js";
+import { CalculateAntropometria } from "../Utilities/Datefunc.js";
+
 
 export const getAntropometriaData = async (req, res) => {
 
@@ -30,9 +32,24 @@ try {
 
 export const CreateAntropometriaPatient = async (req, res) => {
 
-    const { peso, estatura, imc, circ_abdominal, grasa, masa_muscular, cod_hm } = req.body;
+    const { 
+        peso, 
+        estatura, 
+        circ_abdominal, 
+        masa_muscular,
+        age_p,
+        gender_p, 
+        cod_hm 
+    } = req.body;
 
-    if (peso === null || estatura === null || imc === null || circ_abdominal === null || grasa === null || masa_muscular === null) {
+    const antropometriaData = {
+        peso,
+        estatura,
+        circ_abdominal,
+        masa_muscular,
+    }  
+
+    if (peso === null || estatura === null || circ_abdominal === null || masa_muscular === null) {
 
         return res.status(400).json({
             message: 'Error de validación: Los campos no pueden enviarse vacios. Introduce valores validos',
@@ -42,7 +59,8 @@ export const CreateAntropometriaPatient = async (req, res) => {
 
     try {
         
-        const newAntropometria = await CreateNewAntropometria(peso, estatura, imc, circ_abdominal, grasa, masa_muscular, cod_hm);
+        const antropometriaCalculada = CalculateAntropometria(antropometriaData, age_p, gender_p);
+        const newAntropometria = await CreateNewAntropometria(antropometriaCalculada, cod_hm);
 
         return res.status(201).json({
             message: 'Registro de antropometría creado correctamente.',

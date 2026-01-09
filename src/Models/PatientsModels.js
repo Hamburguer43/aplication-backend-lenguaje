@@ -330,12 +330,12 @@ export const findPatientEmailP = async({email_p, name_p}) => {
 
         text: `
         SELECT email, username_doc FROM doctor
-        WHERE email = $1 AND username_doc = $2
+        WHERE email = $1 OR username_doc = $2
 
         UNION ALL
 
         SELECT email_p, name_p FROM patients
-        WHERE email_p = $1 AND name_p = $2
+        WHERE email_p = $1 OR name_p = $2
         `,
         
         values: [email_p, name_p]

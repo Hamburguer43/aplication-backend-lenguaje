@@ -19,12 +19,22 @@ export const getAntropometria = async (cod_hm) => {
 
 } 
 
-export const CreateNewAntropometria = async (peso, estatura, imc, grasa, circ_abdominal, masa_muscular, cod_hm) => {
+export const CreateNewAntropometria = async (antropometriaCalculada, cod_hm) => {
+
+    const {
+        peso,
+        estatura,
+        imc,
+        grasa,
+        circ_abdominal,
+        masa_muscular
+    } = antropometriaCalculada
 
     const CreateAntropometria_query = {
         text: `
         INSERT INTO antropometria (cod_hm, peso, estatura, imc, grasa, circ_abdominal, masa_muscular)
         VALUES ($1, $2, $3, $4, $5, $6, $7) 
+        RETURNING *
         `,
 
         values: [ cod_hm, peso, estatura, imc, grasa, circ_abdominal, masa_muscular],

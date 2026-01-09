@@ -1,6 +1,7 @@
 import { deletePatient, findPatientEmailP, getPatients, UpdatePatient, CreatePatient, getPatientsId } from "../Models/PatientsModels.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import {calcularEdad, CalculateAntropometria} from "../Utilities/Datefunc.js";
 
 // traer todos los pacientes -------------------------------*
 export const getAllPatient = async (req, res) => {
@@ -145,8 +146,7 @@ const {
     name_p, 
     email_p, 
     first_name_p, 
-    last_name_p, 
-    age_p, 
+    last_name_p,  
     gender_p, 
     date_p,
     antropometria, 
@@ -159,12 +159,20 @@ try{
     
     const IfexistingUser = await findPatientEmailP({email_p, name_p});
     
+    console.log("xx", IfexistingUser);
+
     if(IfexistingUser.length > 0){
         return res.status(409).json({
             ok: false,
             msg: "El email proporcionado ya está registrado. Ingrese un email diferente por favor."
         });
     }
+
+    //calculamos la edad a partir de la fecha de nacimiento (date_p)
+    const age_p = calcularEdad(date_p);
+
+    //calculamos el imc y grasa corporal a partir de los datos de antropometria
+    const antropometriaCalculada = CalculateAntropometria(antropometria, age_p, gender_p)
 
     //constante donde guardamos los datos del pacientes
     const patientData = {
@@ -176,7 +184,7 @@ try{
         age_p,
         gender_p,
         date_p,
-        antropometria,
+        antropometria: antropometriaCalculada,
         antecedentes,
         tratamientos
     };
