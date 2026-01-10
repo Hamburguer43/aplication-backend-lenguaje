@@ -7,7 +7,7 @@ import pool from './dataBase.js';
 import routerUser from './Routes/userRoutes.js';
 import routerPatient from './Routes/PatientRoutes.js';
 import routerHistorialMedico from './Routes/HistorialMedicoRoutes.js';
-import routerAlimentos from './Routes/AlimentosRoutes.js';
+import routerAlimentos from './Routes/Alimentos_RecetasRoutes.js';
 
 const app = express();
 
