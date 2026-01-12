@@ -82,6 +82,23 @@ export const getRecetas = async () => {
 
 }
 
+export const getRecetaById = async (cod_receta) => {
+
+    const receta_query = {
+        text: `
+        SELECT R.*, A.name_a, DR.cant_gr_alimento FROM recetas R
+        INNER JOIN detallereceta DR ON R.cod_receta = DR.cod_receta
+        INNER JOIN alimentos A ON DR.id_alimento = A.id_alimento
+        WHERE R.cod_receta = $1
+        `,
+        values: [cod_receta]
+    }
+
+    const {rows} = await pool.query(receta_query);  
+    return rows[0] || null;
+
+}
+
 export const deleteReceta = async (cod_receta) => {
 
     const recetas_query = {
@@ -168,6 +185,97 @@ try {
 } finally {
     conect.release();
 }
+
+}
+
+export const updateReceta = async (cod_receta, recetaData) => {
+
+    const connect = await pool.connect();
+
+    const {
+        nombre,
+        descripcion,
+        observacion,
+        calorias_total,
+        proteinas_total,
+        carbohidratos_total,
+        grasas_total,
+        creado_por,
+        fecha_creacion,
+        detalle_receta
+    } = recetaData;
+
+    try {
+
+        await connect.query('BEGIN');
+
+        const updateReceta_query = {
+            text: `
+            UPDATE recetas
+            SET nombre = $1,
+                descripcion = $2,
+                observacion = $3,
+                calorias_total = $4,
+                proteinas_total = $5,
+                carbohidratos_total = $6,
+                grasas_total = $7,
+                creado_por = $8,
+                fecha_creacion = $9
+            WHERE cod_receta = $10
+            RETURNING *;
+            `,
+            values: [
+                nombre,
+                descripcion,
+                observacion,
+                calorias_total,
+                proteinas_total,
+                carbohidratos_total,
+                grasas_total,
+                creado_por,
+                fecha_creacion,
+                cod_receta
+            ]
+        }
+
+        const resUpdateReceta = await connect.query(updateReceta_query);
+
+        await connect.query('DELETE FROM detallereceta WHERE cod_receta = $1', [cod_receta]);
+
+        const detalle_result = []
+        const detalleReceta_query = 
+        `
+        INSERT INTO detallereceta
+        (cod_receta, id_alimento, cant_gr_alimento)
+        VALUES ($1, $2, $3)
+        RETURNING *;
+        `
+
+        //ciclo que inserta cada alimento del detalle de la receta en un ciclo for
+        for (const alimento of detalle_receta) {
+            const ResDetalle = await connect.query(detalleReceta_query, [
+                cod_receta,
+                alimento.id_alimento,
+                alimento.cant_gr_alimento
+            ]);
+
+            detalle_result.push(ResDetalle.rows[0]);
+        }
+
+        await connect.query(`COMMIT`);
+
+        return {
+        ...resUpdateReceta.rows[0],
+        detalle_receta: detalle_result
+        }
+
+    }catch (error) {
+        await connect.query('ROLLBACK');
+        console.error('Error al actualizar la receta:', error.message);
+        throw error;
+    } finally {
+        connect.release();
+    }
 
 }
 

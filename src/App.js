@@ -61,6 +61,7 @@ app.use('/api/v1/patients', routerPatient);
 // -- Ruta Historial Medico ----------------------------------------------
 app.use('/api/v1/historialMedico', routerHistorialMedico);
 
-app.use('/api/v1/alimentos', routerAlimentos);
+// -- Ruta Alimentos y Recetas ----------------------------------------------
+app.use('/api/v1/AlimentosRecetas', routerAlimentos);
 
 export default app;

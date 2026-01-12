@@ -4,19 +4,26 @@ import {
     createAlimento, 
     findAlimentoByname, 
     getRecetas,
+    getRecetaById,
     deleteReceta,
     createReceta,
+    updateReceta,
     findRecetaByName
 } from "../Models/Alimentos_Recetas.js";
 
 
 //-- Controladores de alimentos ----------------------------
 
-//-- Listar todos los alimentos ------------------------------
 export const getAllAlimentos = async (req, res) => {
 
     try{
         const alimentos = await getAlimentos();
+
+        if (alimentos.length === 0) {
+            return res.status(404).json({
+                message: "No se encontraron alimentos en la base de datos"
+            });
+        }
 
         res.status(200).json({
             alimentos: alimentos
@@ -31,7 +38,6 @@ export const getAllAlimentos = async (req, res) => {
 
 }
 
-//-- Eliminar un alimento por id ------------------------------
 export const delete_Alimento = async (req, res) => {
     
    const id = req.params.id
@@ -66,7 +72,6 @@ export const delete_Alimento = async (req, res) => {
 
 }
 
-//-- Crear un nuevo alimento ------------------------------
 export const create_alimentos = async (req, res) => {
 
 const {
@@ -116,6 +121,12 @@ export const getAllRecetas = async (req, res) => {
     try{
         const recetas = await getRecetas();
 
+        if (recetas.length === 0) {
+            return res.status(404).json({
+                message: "No se encontraron recetas en la base de datos"
+            });
+        }
+
         res.status(200).json({
             recetas: recetas
         });
@@ -123,6 +134,32 @@ export const getAllRecetas = async (req, res) => {
     }catch(error){
         res.status(500).json({
             message: "Error interno del servidor al listar las recetas",
+            error: error.message
+        });
+    }
+
+}
+
+export const getReceta_ById = async (req, res) => {
+
+    const cod_receta = req.params.cod_receta;
+
+    try{
+        const receta = await getRecetaById(cod_receta);
+
+        if (!receta){
+            return res.status(404).json({
+                message: `Receta con id ${cod_receta} no encontrada`
+            });
+        }
+
+        res.status(200).json({
+            receta: receta
+        });
+    
+    }catch(error){
+        res.status(500).json({
+            message: `Error interno del servidor al obtener la receta con id ${cod_receta}`,
             error: error.message
         });
     }
@@ -184,7 +221,7 @@ export const create_receta = async (req, res) => {
 
         if (existingReceta) {
             return res.status(400).json({
-                message: `La receta con nombre ${nombre} ya existe.`,
+                message: `La receta con nombre "${nombre}" ya existe.`,
             });
         }
         
@@ -216,4 +253,35 @@ export const create_receta = async (req, res) => {
         });
 
     }
+}
+
+export const update_receta = async (req, res) => {
+
+    const cod_receta = req.params.cod_receta;
+    const recetaData = req.body;
+
+    try{
+
+        const updatedReceta = await updateReceta(cod_receta, recetaData);
+
+        if (!updatedReceta) {
+            return  res.status(404).json({
+                message: `Receta con id ${cod_receta} no encontrada`
+            });
+        }
+
+        res.status(200).json({
+            message: `Receta con id ${cod_receta} actualizada con exito`,
+            receta: updatedReceta
+        });
+
+    }catch(error){
+
+        res.status(500).json({
+            message: `Error interno del servidor al actualizar la receta con id ${cod_receta}`,
+            error: error.message
+        });
+
+    }
+
 }
