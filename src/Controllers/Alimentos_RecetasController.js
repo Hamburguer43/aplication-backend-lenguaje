@@ -206,11 +206,7 @@ export const create_receta = async (req, res) => {
         nombre,
         descripcion,
         observacion,
-        calorias_total,
-        proteinas_total,
-        carbohidratos_total,
-        grasas_total,
-        creado_por,
+        Macros,
         fecha_creacion,
         detalle_receta,
     } = req.body;
@@ -229,11 +225,7 @@ export const create_receta = async (req, res) => {
             nombre,
             descripcion,
             observacion,
-            calorias_total,
-            proteinas_total,
-            carbohidratos_total,
-            grasas_total,
-            creado_por,
+            Macros,
             fecha_creacion,
             detalle_receta //array de alimentos
         };

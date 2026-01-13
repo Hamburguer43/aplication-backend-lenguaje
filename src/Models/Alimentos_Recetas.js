@@ -95,7 +95,25 @@ export const getRecetaById = async (cod_receta) => {
     }
 
     const {rows} = await pool.query(receta_query);  
-    return rows[0] || null;
+    
+    const receta = {
+        cod_receta: rows[0].cod_receta,
+        nombre: rows[0].nombre,
+        descripcion: rows[0].descripcion,
+        observacion: rows[0].observacion,
+        calorias_total: rows[0].calorias_total,
+        proteinas_total: rows[0].proteinas_total,
+        carbohidratos_total: rows[0].carbohidratos_total,
+        grasas_total: rows[0].grasas_total,
+        fecha_creacion: rows[0].fecha_creacion,
+       
+        alimentos: rows.map(row => ({
+            nombre_alimento: row.name_a,
+            cantidad: row.cant_gr_alimento
+        }))
+    };
+
+    return receta;
 
 }
 
@@ -123,27 +141,25 @@ const {
     nombre,
     descripcion,
     observacion,
-    calorias_total,
-    proteinas_total,
-    carbohidratos_total,
-    grasas_total,
-    creado_por,
-    fecha_creacion,
+    Macros,
+    fecha_creacion = new Date(),
     detalle_receta
 } = recetaData;
 
 try {
+
+    console.log("Macros", Macros)
 
     await conect.query('BEGIN');
 
     const recetas_query = {
     text: `
     INSERT INTO recetas
-    (nombre, descripcion, observacion, calorias_total, proteinas_total, carbohidratos_total, grasas_total, creado_por, fecha_creacion)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    (nombre, descripcion, observacion, calorias_total, proteinas_total, carbohidratos_total, grasas_total, fecha_creacion)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     RETURNING *;
     `,
-    values: [nombre, descripcion, observacion, calorias_total, proteinas_total, carbohidratos_total, grasas_total, creado_por, fecha_creacion]
+    values: [nombre, descripcion, observacion, Macros.calorias_total, Macros.proteinas_total, Macros.carbohidratos_total, Macros.grasas_total,  fecha_creacion]
     };
 
     const resReceta = await conect.query(recetas_query);
