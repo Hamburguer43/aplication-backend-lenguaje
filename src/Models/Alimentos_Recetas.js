@@ -148,8 +148,6 @@ const {
 
 try {
 
-    console.log("Macros", Macros)
-
     await conect.query('BEGIN');
 
     const recetas_query = {

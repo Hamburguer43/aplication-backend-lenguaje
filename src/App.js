@@ -8,6 +8,7 @@ import routerUser from './Routes/userRoutes.js';
 import routerPatient from './Routes/PatientRoutes.js';
 import routerHistorialMedico from './Routes/HistorialMedicoRoutes.js';
 import routerAlimentos from './Routes/Alimentos_RecetasRoutes.js';
+import routerPlanesN from './Routes/PlanesNRoutes.js';
 
 const app = express();
 
@@ -63,5 +64,8 @@ app.use('/api/v1/historialMedico', routerHistorialMedico);
 
 // -- Ruta Alimentos y Recetas ----------------------------------------------
 app.use('/api/v1/AlimentosRecetas', routerAlimentos);
+
+// -- Ruta Planes nutricionales -------------------------------------------
+app.use('/api/v1/PlanesN', routerPlanesN);
 
 export default app;
