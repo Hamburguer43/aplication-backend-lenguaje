@@ -24,7 +24,11 @@ export const getPlanDietaById = async (patientId) => {
             dh.dia,
             dh.hora_sugerida,
             r.nombre,
-            r.cod_receta
+            r.cod_receta,
+            r.calorias_total,
+            r.proteinas_total,
+            r.carbohidratos_total,
+            r.grasas_total
         FROM planDieta p
         
         JOIN HorarioSemanal hs ON p.id_plan = hs.id_plan
@@ -67,6 +71,10 @@ export const getPlanDietaById = async (patientId) => {
             planCompleto.comidasPorDia[fila.dia].push({
                 hora: fila.hora_sugerida,
                 receta: fila.nombre,
+                calorias_total: fila.calorias_total,
+                proteinas_total: fila.proteinas_total,
+                carbohidratos_total:fila.carbohidratos_total,
+                grasas_total: fila.grasas_total, 
                 id: fila.cod_receta
             });
         });
@@ -152,7 +160,7 @@ export const UpdatePlanDieta = async (DataPlan) => {
         id_plan,
         nameplan,
         objetivo,
-        estado,
+        estado = 'actual',
         detallehorario
     } = DataPlan;
 

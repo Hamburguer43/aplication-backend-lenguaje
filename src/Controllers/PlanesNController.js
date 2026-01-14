@@ -39,8 +39,6 @@ export const getPlanPaciente = async (req, res) => {
         
         const plan = await getPlanDietaById(patient_id);
 
-        console.log("plan", plan);
-
         if (!plan) {
             return res.status(404).json({ 
                 msg: "No se encontró un plan de dieta activo para este paciente." 
