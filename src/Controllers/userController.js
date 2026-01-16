@@ -18,7 +18,6 @@ export const getAllUsers = async (req, res) => {
     try{
         
         //BD POSTGRES
-        /*
         //llama al modelo
         const users = await getUsers();
 
@@ -27,9 +26,9 @@ export const getAllUsers = async (req, res) => {
             count: users.length,
             users: users
         });
-        */
         //BD POSTGRES
 
+        /*
         //prueba
         res.status(200).json({
         ok: true,
@@ -37,6 +36,7 @@ export const getAllUsers = async (req, res) => {
         users: doctor
         });
         //prueba
+        */
 
     }catch(error) {
         res.status(500).json({
@@ -60,12 +60,14 @@ export const getUser_ById = async (req, res) => {
     try{
 
         //BD POSTGRES
-        //const resUser = await getUserById(doc_id);
+        const resUser = await getUserById(doc_id);
         //BD POSTGRES  
         
+        /*
         //prueba
         const resUser = doctor.find(u => u.doc_id === parseInt(doc_id));
         //prueba
+        */
 
         if(!resUser){
             return res.status(404).json({
@@ -94,7 +96,6 @@ export const DeleteUserData = async (req, res) => {
     try{
 
         //BD POSTGRES
-        /*
         const users = await DeleteUser({doc_id});
 
         if(users === null){
@@ -107,9 +108,9 @@ export const DeleteUserData = async (req, res) => {
             msg: `Usuario ${doc_id} eliminado con exito`,
             users: users
         });
-        */
         //BD POSTGRES
 
+        /*
         //PRUEBA
         //guardamos la posición del id del doctor, en otras palabras buscamos el doctor con ese id
         const index = doctor.findIndex(u => u.doc_id === parseInt(doc_id));
@@ -132,6 +133,7 @@ export const DeleteUserData = async (req, res) => {
             userDeleted: User
         });
         //PRUEBA
+        */
 
     }catch(error) {
         res.status(500).json({
@@ -146,7 +148,7 @@ export const DeleteUserData = async (req, res) => {
 export const RegisterUser = async (req, res) => {
 
 const { 
-    name_doc, 
+    username_doc, 
     email, 
     password, 
     first_name, 
@@ -158,8 +160,7 @@ const {
 
     try{
 
-        /*
-        POSTGRES
+        //POSTGRES
         // Validacion de email ----------------------------------------
 
         const IfexistingUser = await findUserEmail({email});
@@ -170,9 +171,10 @@ const {
                 msg: "El email proporcionado ya está registrado. Intente iniciar sesión o use otro email."
             });
         }
-        POSTGRES
-        */
+        //POSTGRES
+        
 
+        /*
         //PRUEBA
         const existingUser = doctor.find(u => u.email === email || u.name_doc === name_doc);
 
@@ -188,13 +190,14 @@ const {
             });
         }
         //PRUEBA
+        */
 
         // Hashear password para encriptarla
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
     
-        /*
-        POSTGRES
+        
+        //POSTGRES
         const newUser = await createUsers({
             username_doc,
             email,
@@ -207,8 +210,9 @@ const {
         });
 
         const userCreated = newUser[0];
-        */
+        //POSTGRES
 
+        /*
         //PRUEBA
         const userCreated = {
             doc_id: doctor.length + 1,
@@ -225,6 +229,7 @@ const {
 
         doctor.push(userCreated);
         //PRUEBA
+        */
 
         // Crear token --------------------------
         const token = jwt.sign({
@@ -298,8 +303,7 @@ export const UpdateDataUser = async (req, res) => {
 
     try{
 
-        /*
-        POSTGRES
+        //POSTGRES
         if (email) {
             
             const existingUser = await ValidationEmail(email, doc_id);
@@ -325,9 +329,10 @@ export const UpdateDataUser = async (req, res) => {
             msg: "Actualizado con exito",
             user: Update_user
         });
-        POSTGRES
-        */
+        //POSTGRES
+        
 
+        /*
         //PRUEBA
         //Ubicacion o id del doctor
         const index = doctor.findIndex(u => u.doc_id === parseInt(doc_id));
@@ -371,6 +376,7 @@ export const UpdateDataUser = async (req, res) => {
             user: doctor[index]
         });
         //PRUEBA
+        */
 
     } catch (error){
         return res.status(500).json({
@@ -387,8 +393,7 @@ const {email, password: password_plain} = req.body;
 
     try{
         
-        /*
-        POSTGRES
+        //POSTGRES
         const ExistingUser = await findUserEmail({email});
 
         if(ExistingUser.length === 0 ) {
@@ -400,9 +405,10 @@ const {email, password: password_plain} = req.body;
         }
 
         const user = ExistingUser[0];
-        POSTGRES
-        */
+        //POSTGRES
+        
 
+        /*
         //PRUEBA
         const user = doctor.find(u => u.email === email);
 
@@ -413,6 +419,7 @@ const {email, password: password_plain} = req.body;
             });
         }
         //PRUEBA
+        */
 
         const passwordValid = await bcrypt.compare(password_plain, user.password) // si no se encuentra una igualdad al comparar seria false
 

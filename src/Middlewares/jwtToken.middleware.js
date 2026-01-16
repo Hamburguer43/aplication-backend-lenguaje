@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 
 export const verifyToken = (req, res, next) => {
     
-    // 1. Intentar obtener el token de la cookie
     const token = req.cookies.access_token;
 
     if (!token) {
@@ -18,7 +17,7 @@ export const verifyToken = (req, res, next) => {
         //verificamos que el token obtenido de las cookies tenga la key secrect
         const decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
     
-        // mandamos en el req el payload del token que creamos en userController/loginUser
+        // mandamos en el req el payload del token que creamos 
         req.user = decodedPayload;
 
         next(); 

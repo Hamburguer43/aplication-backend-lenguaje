@@ -95,6 +95,10 @@ export const getRecetaById = async (cod_receta) => {
     }
 
     const {rows} = await pool.query(receta_query);  
+
+    if (rows.length === 0) {
+        return null; 
+    }
     
     const receta = {
         cod_receta: rows[0].cod_receta,

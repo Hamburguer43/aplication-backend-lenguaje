@@ -117,7 +117,8 @@ export const CreatePlanDieta = async (DataPLan) => {
         // INSERT en plan dieta ----------------------------------------------------------
         const resPlan = await connect.query(
             `INSERT INTO planDieta (patient_id, nameplan, objetivo, create_plan, estado) 
-             VALUES ($1, $2, $3, $4, $5) RETURNING id_plan`,
+             VALUES ($1, $2, $3, $4, $5) 
+             RETURNING id_plan`,
             [patient_id, nameplan, objetivo, create_plan, estado]
         );
         const id_plan = resPlan.rows[0].id_plan
@@ -125,7 +126,8 @@ export const CreatePlanDieta = async (DataPLan) => {
         // INSERT en horariosemanal ----------------------------------------------------------
         const resHorario = await connect.query(
             `INSERT INTO horariosemanal (nombre, id_plan) 
-             VALUES ($1, $2) RETURNING cod_horario`,
+             VALUES ($1, $2) 
+             RETURNING cod_horario`,
             [horariosemanal.nombre, id_plan]
         );
         const cod_horario = resHorario.rows[0].cod_horario;

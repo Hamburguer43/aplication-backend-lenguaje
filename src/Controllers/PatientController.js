@@ -13,14 +13,16 @@ export const getAllPatient = async (req, res) => {
 
     try{
         
-        /*
-        POSTGRES
+        
+        //POSTGRES
         const patients = await getPatients(doc_id);
-        */
+        //POSTGRES
 
+        /*
         //PRUEBA
         const patients = patientsBd.filter(p => p.doc_id === parseInt(doc_id))
         //PRUEBA
+        */
 
         if(patients.length === 0){
             res.status(404).json({
@@ -50,14 +52,15 @@ export const getPatient = async (req, res) => {
     
     try{
 
-        /*
-        POSTGRES
+        
+        //POSTGRES
         const patient = await getPatientsId(patient_id);
-        */
 
+        /*
         //PRUEBA
         const patient = patientsBd.find(p => p.patient_id === parseInt(patient_id));
         //PRUEBA
+        */
 
         if(!patient){
             return res.status(404).json({
@@ -86,8 +89,8 @@ export const deletePatientData = async (req, res) => {
 
     try{
 
-        /*
-        POSTGRES
+        
+        //POSTGRES
         const patient = await deletePatient(patient_id);
 
         if(!patient){
@@ -100,9 +103,9 @@ export const deletePatientData = async (req, res) => {
             msg: `Paciente ${patient_id} eliminado con exito xxx`,
             patient: patient
         });
-        POSTGRES
-        */
+        //POSTGRES
 
+        /*
         //PRUEBA
         const index = patientsBd.findIndex(p => p.patient_id === parseInt(patient_id));
 
@@ -123,6 +126,7 @@ export const deletePatientData = async (req, res) => {
             patient: deletePatient
         });
         //PRUEBA
+        */
 
     }catch(error) {
 
@@ -149,8 +153,8 @@ const { email_p, name_p } = update;
   
    try{
 
-    /*
-    POSTGRES
+    
+    //POSTGRES
     const existingPatient = await existsPatient(patient_id);
 
     if (!existingPatient) {
@@ -192,9 +196,10 @@ const { email_p, name_p } = update;
     msg: "Actualizado con exito",
     user: Update_patient
     });
-    POSTGRES
-    */
+    //POSTGRES
+
  
+    /*
     //PRUEBA
     const index = patientsBd.findIndex(p => p.patient_id === parseInt(patient_id));
 
@@ -239,6 +244,7 @@ const { email_p, name_p } = update;
         patient: patientsBd[index]
     })
     //PRUEBA
+    */
 
    } catch (error){
 
@@ -283,6 +289,7 @@ try{
     POSTGRES
     */
 
+    /*
     //PRUEBA
     const doctorExists = doctor.find(d => d.doc_id === parseInt(doc_id));
 
@@ -312,6 +319,8 @@ try{
             msg: "El email o nombre de usuario ya está registrado."
         });
     }
+    //PRUEBA
+    */
 
     //calculamos la edad a partir de la fecha de nacimiento (date_p)
     const age_p = calcularEdad(date_p);
@@ -319,7 +328,7 @@ try{
     //calculamos el imc y grasa corporal a partir de los datos de antropometria
     const antropometriaCalculada = CalculateAntropometria(antropometria, age_p, gender_p)
 
-    /*
+    //POSTGRES
     //constante donde guardamos los datos del pacientes
     const patientData = {
         doc_id,
@@ -342,8 +351,10 @@ try{
             msg: `El doctor ${doc_id} no existe, asi que no se puede crear un paciente sin un doctor asociado`
         })
     }
-    */
+    //POSTGRES
 
+    /*
+    //PRUEBA
     const newPatient = {
         patient_id: patientsBd.length + 1,
         doc_id: parseInt(doc_id),
@@ -376,6 +387,7 @@ try{
 
     patientsBd.push(newPatient);
     //PRUEBA
+    */
 
     return res.status(201).json({
         ok: true,

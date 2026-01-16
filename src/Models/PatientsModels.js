@@ -88,9 +88,11 @@ export const getPatientsId = async (patient_id) => {
     return {
         ...resUser.rows[0],
         ...resHm.rows[0],
+        historial_medico: {
         antropometria: resAntropometria.rows[0],
         tratamientos: resTratamientos.rows[0],
         antecedentes: resAntecedentes.rows[0]
+        }
     }
 };
 

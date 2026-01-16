@@ -220,12 +220,22 @@ export const create_receta = async (req, res) => {
                 message: `La receta con nombre "${nombre}" ya existe.`,
             });
         }
+
+        
+        //calcular macros
+        const totales = detalle_receta.reduce((acc, item) => {
+        acc.calorias_total += item.calorias || 0;
+        acc.proteinas_total += item.proteinas || 0;
+        acc.carbohidratos_total += item.carbohidratos || 0;
+        acc.grasas_total += item.grasas || 0;
+        return acc;
+        }, { calorias_total: 0, proteinas_total: 0, carbohidratos_total: 0, grasas_total: 0 });
         
         const recetaData = {
             nombre,
             descripcion,
             observacion,
-            Macros,
+            Macros: totales,
             fecha_creacion,
             detalle_receta //array de alimentos
         };
@@ -277,5 +287,3 @@ export const update_receta = async (req, res) => {
     }
 
 }
-
-//implementar a memoria todos los modulos, ya hice en users, patients
