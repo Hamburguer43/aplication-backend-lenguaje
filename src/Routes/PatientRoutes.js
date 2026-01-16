@@ -7,13 +7,13 @@ const routerPatient = Router();
 routerPatient.get('/', getAllPatient);
 
 //Endpoint GET para traer un paciente por id
-routerPatient.get('/data/:id', getPatient);
+routerPatient.get('/data/:patient_id', getPatient);
 
 //Endpoint DELETE para eliminar pacientes
 routerPatient.delete('/deletePatient/:id', deletePatientData);
 
 //Endpoint PUT para actualizar campos del paciente
-routerPatient.put('/updatePatient/:id', UpdateDataPatient);
+routerPatient.put('/updatePatient/:patient_id', UpdateDataPatient);
 
 //Endpoint POST para crear un patient
 routerPatient.post('/createPatient', Create_Patient);

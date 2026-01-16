@@ -1,6 +1,5 @@
 import pool from "../dataBase.js";
 import { text } from "express";
-import { UpdateUser } from "./userModels.js";
 
 // -- Obtener patients ------------------------------------------------ *
 
@@ -32,6 +31,11 @@ export const getPatientsId = async (patient_id) => {
     }
 
     const resUser = await pool.query(patient_query);
+
+    if (resUser.rows.length === 0) {
+        return null; 
+    }
+
     const PatientId = resUser.rows[0].patient_id;
 
     const Hm_query = {
@@ -122,57 +126,59 @@ export const deletePatient = async (patient_id) => {
 };
 
 // -- actualizar paciente por id -------------------------------------- 
-export const UpdatePatient = async(PatientData) => {
-    // desestructuramos los campos
-    const {user_id, ...update} = PatientData;
+export const UpdatePatient = async(patient_id, update) => {
+    
+const connect = await pool.connect();
 
-    // filtra solo los campos que no esten undefined
-    const fields = Object.keys(update).filter(key => update[key] !== undefined);
+const {
+    doc_id,
+    name_p,
+    email_p,
+    first_name_p,
+    last_name_p,
+    age_p,
+    gender_p,
+    create_p,
+    update_p = new Date()
+} = update
 
-    if(fields.length === 0) {
-        return{message: "No hay campos para actualizar"};
+try{
+
+    await connect.query('BEGIN');
+
+    const update_patient_query = {
+        text: `
+        UPDATE patients
+        SET doc_id = $1,
+            name_p =$2,
+            email_p =$3,
+            first_name_p =$4,
+            last_name_p =$5,
+            age_p =$6,
+            gender_p =$7,
+            create_p =$8,
+            update_p =$9
+        WHERE patient_id = $10
+        RETURNING *
+        `,
+
+        values: [doc_id, name_p, email_p, first_name_p, last_name_p, age_p, gender_p, create_p, update_p, patient_id]
     }
 
-    let Datauser = []; // array para almacenar los datos a actualizar
-    let values = [user_id];
-    let index = 2; // contador
+    const {rows} = await connect.query(update_patient_query);
 
-    //creamos un ciclo for que va desde 2 hasta n elementos que contenga fields
+    await connect.query(`COMMIT`);
 
-    //con DateUser.push empujamos dentor del field el valor del index para que guarde los valores ej: $2, $3
+    return rows[0] || null;
 
-    for (const field of fields){
-        Datauser.push(`${field} = $${index}`);
-        values.push(update[field]);
-        index++;
-    }
+}catch (error) {
+    await connect.query('ROLLBACK');
+    console.error('Error al actualizar el usuario:', error.message);
+    throw error;
+} finally {
+    connect.release();
+}
 
-    Datauser.push(`update_user = NOW()`);
-
-        const query = {
-            // toma los elementos del array y los une en una cadena de texto separandolos con (,)
-            text: `UPDATE users
-            SET ${Datauser.join(', ')} 
-            WHERE user_id = $1 AND rol_id = 3
-            RETURNING user_id, ${fields.join(', ')}, update_user`,
-
-            values: values,
-        };
-
-        try {
-            const { rows } = await pool.query(query);
-
-            if (rows.length === 0) {
-                const error = new Error("Paciente no encontrado o no tiene el rol de paciente (3).");
-                error.status = 404;
-                throw error;
-            }
-
-            return rows[0];
-
-        } catch (error) {
-            throw new Error(`Error al actualizar el usuario: ${error.message}`);
-        }
 }
 
 // -- crear paciente -------------------------------------- *
@@ -202,6 +208,13 @@ export const CreatePatient = async(patientData) => {
         
         //iniciar la transaccion de datos
         await client.query('BEGIN');
+
+        //Verificamos si el doctor existe para seguir con la transaccion
+        const docExists = await client.query('SELECT 1 FROM doctor WHERE doc_id = $1', [doc_id]);
+
+        if (docExists.rows.length === 0) {
+            return null;
+        }
 
         // Query user -------------------------
         const patient_query = {

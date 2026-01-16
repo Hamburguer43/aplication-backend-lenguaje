@@ -277,3 +277,5 @@ export const update_receta = async (req, res) => {
     }
 
 }
+
+//implementar a memoria todos los modulos, ya hice en users, patients

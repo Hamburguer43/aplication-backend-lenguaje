@@ -18,6 +18,21 @@ export const getUsers = async () => {
 
 }; 
 
+export const getUserById = async (doc_id) => {
+
+const user_query = {
+    text: `
+    SELECT * FROM doctor
+    WHERE doc_id = $1
+    `,
+    values: [doc_id]
+}
+
+const {rows} = await pool.query(user_query);
+return rows[0] || null;
+
+}
+
 // -- CRUD ------------------------------------------------------------
 
 // -- Create ----------------------------
@@ -51,51 +66,69 @@ export const createUsers = async({
 
 // -- Update ----------------------------
 
-export const UpdateUser = async(userData) => {
+export const UpdateUser = async(doc_id, update) => {
 
-// desestructuramos los campos
-const {doc_id, ...update} = userData;
+const connect = await pool.connect();
 
-// filtra solo los campos que no esten undefined
-const fields = Object.keys(update).filter(key => update[key] !== undefined);
+const {
+    username_doc, 
+    email,  
+    first_name, 
+    last_name, 
+    age, 
+    gender, 
+    date_doc,
+    create_doc,
+    update_doc = new Date()
+} = update
 
-if(fields.length === 0) {
-    return{message: "No hay campos para actualizar"};
+try{
+
+     await connect.query('BEGIN');
+
+     const update_user_query = {
+        text: `
+        UPDATE doctor
+        SET username_doc =$1,
+        email =$2,
+        first_name =$3,
+        last_name =$4,
+        age =$5,
+        gender =$6,
+        date_doc =$7,
+        create_doc =$8,
+        update_doc =$9
+        WHERE doc_id = $10
+        RETURNING *;
+        `,
+        
+        values: [
+            username_doc,
+            email,
+            first_name,
+            last_name,
+            age,
+            gender,
+            date_doc,
+            create_doc,
+            update_doc,
+            doc_id
+        ]
+     }
+
+    const {rows} = await connect.query(update_user_query);
+
+    await connect.query(`COMMIT`);
+
+    return rows[0] || null;
+
+}catch (error) {
+    await connect.query('ROLLBACK');
+    console.error('Error al actualizar el usuario:', error.message);
+    throw error;
+} finally {
+    connect.release();
 }
-
-let Datauser = []; // array para almacenar los datos a actualizar
-let values = [user_id];
-let index = 2; // contador
-
-//creamos un ciclo for que va desde 2 hasta n elementos que contenga fields
-
-//con DateUser.push empujamos dentor del field el valor del index para que guarde los valores ej: $2, $3
-
-for (const field of fields){
-    Datauser.push(`${field} = $${index}`);
-    values.push(update[field]);
-    index++;
-}
-
-Datauser.push(`update_user = NOW()`);
-
-    const query = {
-        // toma los elementos del array y los une en una cadena de texto separandolos con (,)
-        text: `UPDATE users
-        SET ${Datauser.join(', ')} 
-        WHERE user_id = $1
-        RETURNING user_id, ${fields.join(', ')}, update_user`,
-
-        values: values,
-    };
-
-    try {
-        const { rows } = await pool.query(query);
-        return rows[0];
-
-    } catch (error) {
-        throw new Error(`Error al actualizar el usuario: ${error.message}`);
-    }
 
 };
 
@@ -105,13 +138,13 @@ export const DeleteUser = async({doc_id}) => {
     const query = {
         text: `DELETE FROM doctor
         WHERE doc_id = $1
-        RETURNING doc_id`,
+        RETURNING *`,
 
         values: [doc_id],
     }
 
     const {rows} = await pool.query(query);
-    return rows;
+    return rows[0] || null;
 
 }
 
@@ -127,6 +160,24 @@ export const findUserEmail = async({email}) => {
         `,
         
         values: [email]
+
+    }    
+
+    const {rows} = await pool.query(query);
+    return rows;
+
+}
+
+export const ValidationEmail = async(email, doc_id) => {
+
+    const query = {
+
+        text: `
+        SELECT email, doc_id FROM doctor
+        WHERE email = $1 AND doc_id != $2
+        `,
+        
+        values: [email, doc_id]
 
     }    
 
