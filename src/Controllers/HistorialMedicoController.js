@@ -1,4 +1,9 @@
-import { CreateNewAntropometria, getAntropometria } from "../Models/Historial_medico.js";
+import { 
+    CreateNewAntropometria, 
+    getAntropometria ,
+    getHistorialMedicos,
+    getHistorialById
+} from "../Models/Historial_medico.js";
 import { CalculateAntropometria } from "../Utilities/Datefunc.js";
 
 
@@ -75,6 +80,61 @@ export const CreateAntropometriaPatient = async (req, res) => {
             error: error.message
         });
     
+    }
+
+}
+
+export const get_historialmedico = async (req, res) => {
+
+    try{
+
+        const historial = await getHistorialMedicos();
+
+        if(historial.length === 0){
+            msg: `No se encontraron historiales medicos registrados en la base de datos`
+        }
+
+        return res.status(200).json({
+        message: 'Historiales medicos obtenidos exitosamente',
+        data: historial
+        });
+
+
+    }catch(error){
+        return res.status(500).json({
+            message: 'Error al consultar los datos en el servidor',
+            error: error.message
+        });
+
+    }
+
+}
+
+export const get_historialById = async (req, res) => {
+
+    const patient_id = req.params.patient_id;
+
+    try{
+
+    const historial = await getHistorialById(patient_id);
+
+    if(historial.length === 0){
+        return res.status(404).json({
+            msg: `No hay historiales meidcos registrados para este paciente ${patient_id}`
+        })
+    }
+
+    res.status(200).json({
+        msg: `Historial medico obtenido exitosamente`,
+        historial_medico: historial 
+    })
+
+    }catch(error){
+        return res.status(500).json({
+            message: 'Error al consultar los datos en el servidor',
+            error: error.message
+        });
+
     }
 
 }

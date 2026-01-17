@@ -8,7 +8,7 @@ export const verifyToken = (req, res, next) => {
         // No hay token en las cookies
         return res.status(401).json({ 
             ok: false, 
-            msg: 'Acceso denegado. No se proporcionó token.' 
+            msg: 'Acceso denegado' 
         });
     }
 

@@ -10,15 +10,10 @@ import {
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-//import de la base de datos prueba
-import { doctor } from "../Data/BaseDatosPrueba.js";
-
 export const getAllUsers = async (req, res) => {
 
     try{
         
-        //BD POSTGRES
-        //llama al modelo
         const users = await getUsers();
 
         //Envia la res al cliente
@@ -26,18 +21,7 @@ export const getAllUsers = async (req, res) => {
             count: users.length,
             users: users
         });
-        //BD POSTGRES
-
-        /*
-        //prueba
-        res.status(200).json({
-        ok: true,
-        count: doctor.length,
-        users: doctor
-        });
-        //prueba
-        */
-
+        
     }catch(error) {
         res.status(500).json({
             message: "Error interno del servidor al listar doctores",
@@ -58,16 +42,8 @@ export const getUser_ById = async (req, res) => {
     }
 
     try{
-
-        //BD POSTGRES
+   
         const resUser = await getUserById(doc_id);
-        //BD POSTGRES  
-        
-        /*
-        //prueba
-        const resUser = doctor.find(u => u.doc_id === parseInt(doc_id));
-        //prueba
-        */
 
         if(!resUser){
             return res.status(404).json({
@@ -95,7 +71,6 @@ export const DeleteUserData = async (req, res) => {
 
     try{
 
-        //BD POSTGRES
         const users = await DeleteUser({doc_id});
 
         if(users === null){
@@ -108,32 +83,6 @@ export const DeleteUserData = async (req, res) => {
             msg: `Usuario ${doc_id} eliminado con exito`,
             users: users
         });
-        //BD POSTGRES
-
-        /*
-        //PRUEBA
-        //guardamos la posición del id del doctor, en otras palabras buscamos el doctor con ese id
-        const index = doctor.findIndex(u => u.doc_id === parseInt(doc_id));
-
-        if(index === -1){
-            return res.status(404).json({
-                ok: false,
-                msg: `Usuario ${doc_id} no existe`
-            });
-        }
-
-        const User = doctor[index];
-
-        //eliminamos el objeto que está en esa posicion o id
-        doctor.splice(index, 1);
-
-        res.status(200).json({
-            ok: true,
-            msg: `Usuario ${doc_id} eliminado con éxito`,
-            userDeleted: User
-        });
-        //PRUEBA
-        */
 
     }catch(error) {
         res.status(500).json({
@@ -160,7 +109,6 @@ const {
 
     try{
 
-        //POSTGRES
         // Validacion de email ----------------------------------------
 
         const IfexistingUser = await findUserEmail({email});
@@ -171,27 +119,15 @@ const {
                 msg: "El email proporcionado ya está registrado. Intente iniciar sesión o use otro email."
             });
         }
-        //POSTGRES
+
+        //validacion de password --------------------------------------------
+        if (!password || password.trim() === "") {
+        return res.status(400).json({
+            status: "error",
+            message: "La contraseña es obligatoria para el registro."
+        });
+    }
         
-
-        /*
-        //PRUEBA
-        const existingUser = doctor.find(u => u.email === email || u.name_doc === name_doc);
-
-        if (existingUser){
-            let msg = `El email proporcionado ya está registrado`
-            if(existingUser.name_doc === name_doc){
-                msg = `El nombre de usuario ${name_doc} ya está usado`
-            }
-
-            return res.status(409).json({
-                ok: false,
-                msg: msg
-            });
-        }
-        //PRUEBA
-        */
-
         // Hashear password para encriptarla
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -210,26 +146,6 @@ const {
         });
 
         const userCreated = newUser[0];
-        //POSTGRES
-
-        /*
-        //PRUEBA
-        const userCreated = {
-            doc_id: doctor.length + 1,
-            name_doc,
-            email,
-            password: hashedPassword,
-            first_name,
-            last_name,
-            age,
-            gender,
-            date_doc,
-            create_doc: new Date().toISOString()
-        };
-
-        doctor.push(userCreated);
-        //PRUEBA
-        */
 
         // Crear token --------------------------
         const token = jwt.sign({
@@ -303,7 +219,6 @@ export const UpdateDataUser = async (req, res) => {
 
     try{
 
-        //POSTGRES
         if (email) {
             
             const existingUser = await ValidationEmail(email, doc_id);
@@ -329,54 +244,6 @@ export const UpdateDataUser = async (req, res) => {
             msg: "Actualizado con exito",
             user: Update_user
         });
-        //POSTGRES
-        
-
-        /*
-        //PRUEBA
-        //Ubicacion o id del doctor
-        const index = doctor.findIndex(u => u.doc_id === parseInt(doc_id));
-
-        if (index === -1) {
-            return res.status(404).json({
-                ok: false,
-                msg: `Usuario ${doc_id} no existe en el sistema`
-            });
-        }
-
-        if (email || name_doc) {
-
-            const existingUser = doctor.find(u => 
-                (u.email === email || u.name_doc === name_doc) && 
-                u.doc_id !== parseInt(doc_id) 
-            ); 
-
-            if (existingUser){
-                let msg = `El email proporcionado ya está registrado`
-                if(existingUser.name_doc === name_doc){
-                    msg = `El nombre de usuario ${name_doc} ya está usado`
-                }
-
-                return res.status(409).json({
-                    ok: false,
-                    msg: msg
-                });
-            }
-        }
-
-        doctor[index] = {
-            ...doctor[index],
-            ...update,
-            update_doc: new Date().toISOString()
-        };
-
-        return res.status(200).json({
-            ok: true,
-            msg: `Usuario ${doc_id} actualizado con exito`,
-            user: doctor[index]
-        });
-        //PRUEBA
-        */
 
     } catch (error){
         return res.status(500).json({
@@ -393,34 +260,18 @@ const {email, password: password_plain} = req.body;
 
     try{
         
-        //POSTGRES
         const ExistingUser = await findUserEmail({email});
 
         if(ExistingUser.length === 0 ) {
 
             return res.status(401).json({
                 ok: false,
-                msg: "El email no esta registrado"
+                msg: "El email no esta registrado en la base de datos. Registrate para poder acceder"
             })
         }
 
         const user = ExistingUser[0];
-        //POSTGRES
         
-
-        /*
-        //PRUEBA
-        const user = doctor.find(u => u.email === email);
-
-        if (!user) {
-            return res.status(404).json({
-                ok: false,
-                msg: "Email de usuario no encontrado."
-            });
-        }
-        //PRUEBA
-        */
-
         const passwordValid = await bcrypt.compare(password_plain, user.password) // si no se encuentra una igualdad al comparar seria false
 
         if(!passwordValid){

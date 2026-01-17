@@ -1,7 +1,9 @@
 import { Router, json } from "express";
-import { Create_Patient, deletePatientData, getAllPatient, getPatient, UpdateDataPatient } from "../Controllers/PatientController.js";
+import { Create_Patient, deletePatientData, getAllPatient, getPatient, UpdateDataPatient, patients } from "../Controllers/PatientController.js";
 
 const routerPatient = Router();
+
+routerPatient.get('/obtenerP', patients);
 
 //Endpoint GET para traer la lista de pacientes
 routerPatient.get('/', getAllPatient);

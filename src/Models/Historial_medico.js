@@ -46,3 +46,41 @@ export const CreateNewAntropometria = async (antropometriaCalculada, cod_hm) => 
     return resNewAntropometria.rows[0];
  
 }
+
+export const getHistorialMedicos = async() => {
+
+const historial_query = {
+
+    text: `
+    select hm.*, 
+    p.email_p, p.first_name_p, p.last_name_p 
+    from historial_medico hm
+    INNER JOIN patients p
+    ON hm.patient_id = p.patient_id
+    `
+}
+
+const {rows} = await pool.query(historial_query);
+return rows
+
+}
+
+export const getHistorialById = async (patient_id) => {
+
+const historial_query = {
+    text: `
+    select hm.*, 
+    p.email_p, p.first_name_p, p.last_name_p 
+    from historial_medico hm
+    INNER JOIN patients p
+    ON hm.patient_id = p.patient_id
+    WHERE p.patient_id = $1
+    `,
+
+    values: [patient_id]
+};
+
+const {rows} = await pool.query(historial_query);
+return rows
+
+}

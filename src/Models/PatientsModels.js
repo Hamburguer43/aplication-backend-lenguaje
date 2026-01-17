@@ -3,6 +3,19 @@ import { text } from "express";
 
 // -- Obtener patients ------------------------------------------------ *
 
+export const patiensData = async () => {
+
+    const query = {
+        text: `
+        SELECT * FROM patients
+        `
+    }    
+
+    const {rows} = await pool.query(query);
+    return rows;
+
+}
+
 export const getPatients = async (doc_id) => {
 
     const query = {
@@ -340,24 +353,31 @@ export const CreatePatient = async(patientData) => {
 // -- buscar email paciente por id -------------------------------------- *
 export const findPatientEmailP = async({email_p, name_p}) => {
 
-
-    const query = {
-
-        text: `
-        SELECT email, username_doc FROM doctor
-        WHERE email = $1 OR username_doc = $2
-
-        UNION ALL
-
-        SELECT email_p, name_p FROM patients
-        WHERE email_p = $1 OR name_p = $2
-        `,
-        
+   const resDoc = await pool.query({
+        text: `SELECT email, username_doc FROM doctor WHERE email = $1 OR username_doc = $2`,
         values: [email_p, name_p]
+    });
 
+    const resPat = await pool.query({
+        text: `SELECT email_p, name_p FROM patients WHERE email_p = $1 OR name_p = $2`,
+        values: [email_p, name_p]
+    });
+
+    if (resDoc.rows.length > 0) {
+        return {
+            email: resDoc.rows[0].email,
+            name: resDoc.rows[0].username_doc,
+            origin: 'doctor' 
+        };
     }
-    
-    const {rows} = await pool.query(query);
-    return rows;
 
+    if (resPat.rows.length > 0) {
+        return {
+            email: resPat.rows[0].email_p,
+            name: resPat.rows[0].name_p,
+            origin: 'paciente'
+        };
+    }
+
+    return null;
 }

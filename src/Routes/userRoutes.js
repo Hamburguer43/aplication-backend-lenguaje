@@ -31,7 +31,7 @@ routerUser.get('/profile', verifyToken, (req, res) => {
     
     return res.status(200).json({
         ok: true,
-        msg: 'Acceso concedido a la ruta protegida',
+        msg: 'Acceso concedido al sistema',
         
         userData: {
             doc_id: req.user.doc_id, // Acceso desde req.user
