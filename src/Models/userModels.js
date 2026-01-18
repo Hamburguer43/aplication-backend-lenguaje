@@ -33,8 +33,6 @@ return rows[0] || null;
 
 }
 
-// -- CRUD ------------------------------------------------------------
-
 // -- Create ----------------------------
 export const createUsers = async({
     username_doc, 

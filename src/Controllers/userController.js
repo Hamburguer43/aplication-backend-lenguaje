@@ -7,9 +7,11 @@ import {
     UpdateUser, 
     DeleteUser 
 } from "../Models/userModels.js";
+import { calcularEdad } from "../Utilities/Datefunc.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+// -- obtener lista de usuarios/ doctores -----------------------
 export const getAllUsers = async (req, res) => {
 
     try{
@@ -31,6 +33,7 @@ export const getAllUsers = async (req, res) => {
 
 };
 
+// -- obtener usuario/ doctor por id -----------------
 export const getUser_ById = async (req, res) => {
 
     const doc_id = req.params.doc_id
@@ -65,6 +68,7 @@ export const getUser_ById = async (req, res) => {
 
 };
 
+// -- borrar usuario -----------------------------------
 export const DeleteUserData = async (req, res) => {
 
     const doc_id = req.params.doc_id;
@@ -101,8 +105,7 @@ const {
     email, 
     password, 
     first_name, 
-    last_name, 
-    age, 
+    last_name,  
     gender, 
     date_doc 
 } = req.body
@@ -127,6 +130,8 @@ const {
             message: "La contraseña es obligatoria para el registro."
         });
     }
+
+        const edad = calcularEdad(date_doc);
         
         // Hashear password para encriptarla
         const salt = await bcrypt.genSalt(10);
@@ -140,7 +145,7 @@ const {
             password: hashedPassword,
             first_name,
             last_name,
-            age,
+            age: edad,
             gender,
             date_doc
         });
@@ -254,6 +259,7 @@ export const UpdateDataUser = async (req, res) => {
     
 };
 
+// -- iniciar seción -----------------------------------
 export const loginUser = async (req, res) => {
 
 const {email, password: password_plain} = req.body;
