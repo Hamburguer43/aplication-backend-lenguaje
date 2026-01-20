@@ -2,22 +2,23 @@ import {
     CreateNewAntropometria, 
     getAntropometria ,
     getHistorialMedicos,
-    getHistorialById
+    getHistorialById,
+    createHC
 } from "../Models/Historial_medico.js";
 import { CalculateAntropometria } from "../Utilities/Datefunc.js";
 
 
 export const getAntropometriaData = async (req, res) => {
 
-const cod_hm = req.params.cod_hm;
+const patient_id = req.params.patient_id;
 
 try {
     
-    const antropometria = await getAntropometria(cod_hm);
+    const antropometria = await getAntropometria(patient_id);
 
     if (antropometria.length === 0) {
         return res.status(404).json({
-            message: `No se encontraron datos de antropometría para el historial médico con código ${cod_hm}`
+            message: `No se encontraron datos de antropometría para el historial médico con código ${patient_id}`
         });
     }
 
@@ -135,6 +136,34 @@ export const get_historialById = async (req, res) => {
             error: error.message
         });
 
+    }
+
+}
+
+export const create_historial = async (req, res) => {
+
+    const {
+        antecedentes,
+        antropometria,
+        patient_id
+    } = req.body
+
+    try{
+
+        const historial = await createHC(antecedentes, antropometria, patient_id);
+        
+        res.status(200).json({
+            msg: `Historial Clinico creado con exito`,
+            historial_clinico: historial
+        })
+
+    }catch (error) {
+
+        return res.status(500).json({
+            message: 'Error en el controlador al crear un nuevo registro de historial clínico',
+            error: error.message
+        });
+    
     }
 
 }

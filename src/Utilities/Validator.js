@@ -26,5 +26,5 @@ export const existsPatient = async (patient_id) => {
         values: [patient_id]
     };
     const { rows } = await pool.query(query);
-    return rows.length > 0; // Devuelve true o false
+    return rows.length > 0; 
 };

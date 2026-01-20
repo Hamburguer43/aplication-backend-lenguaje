@@ -55,6 +55,8 @@ export const getPatientsId = async (patient_id) => {
         text: `
         SELECT cod_hm FROM historial_medico
         WHERE patient_id = $1
+        ORDER BY cod_hm DESC
+        LIMIT 1
         `,
 
         values: [PatientId]
@@ -70,7 +72,7 @@ export const getPatientsId = async (patient_id) => {
         Hm_data = resHm.rows[0];
     }
     
-    // a) Antropometría
+    // Antropometría
     const antropometria_query = {
         text: `SELECT * FROM antropometria 
         WHERE cod_hm = $1 
@@ -80,16 +82,7 @@ export const getPatientsId = async (patient_id) => {
     };
     const resAntropometria = await pool.query(antropometria_query);
 
-    // b) Tratamientos
-    const tratamientos_query = {
-        text: `SELECT * FROM tratamientos 
-        WHERE cod_hm = $1`,
-        
-        values: [Hm_id]
-    };
-    const resTratamientos = await pool.query(tratamientos_query);
-
-    // c) Antecedentes
+    // Antecedentes
     const antecedentes_query = {
         text: `SELECT * FROM antecedentes 
         WHERE cod_hm = $1`,
@@ -101,11 +94,8 @@ export const getPatientsId = async (patient_id) => {
     return {
         ...resUser.rows[0],
         ...resHm.rows[0],
-        historial_medico: {
         antropometria: resAntropometria.rows[0],
-        tratamientos: resTratamientos.rows[0],
         antecedentes: resAntecedentes.rows[0]
-        }
     }
 };
 
@@ -215,7 +205,6 @@ export const CreatePatient = async(patientData) => {
         //datos de historial
         antropometria,
         antecedentes,
-        tratamientos
 
     } = patientData
 
@@ -263,13 +252,13 @@ export const CreatePatient = async(patientData) => {
         // Query historial medico / antropometria -------------------------
         const Antropometria_query = {
             text: `
-            INSERT INTO antropometria (cod_hm, peso, estatura, imc, grasa, circ_abdominal, masa_muscular)
+            INSERT INTO antropometria (cod_hm, peso, estatura, imc, grasa, circ_abdominal, riesgo_metabolico)
             VALUES ($1, $2, $3, $4, $5, $6, $7) 
             RETURNING *
             `,
             values: [
                 codHm, antropometria.peso, antropometria.estatura, antropometria.imc, antropometria.grasa, 
-                antropometria.circ_abdominal, antropometria.masa_muscular
+                antropometria.circ_abdominal, antropometria.riesgo_metabolico
             ],
         };
 
@@ -310,32 +299,12 @@ export const CreatePatient = async(patientData) => {
         const resAntecedentes = await client.query(Antecedentes_query);
         const NewAntecedentes = resAntecedentes.rows[0];
 
-        //Query historial medico / antecedentes -----------------------------
-        const tratamientos_query = {
-            text: `
-                INSERT INTO tratamientos (cod_hm, medico, quirurgico, paliativos)
-                VALUES ($1, $2, $3, $4) 
-                RETURNING *
-            `,
-            
-            values: [
-                codHm,                     
-                tratamientos.medico,       
-                tratamientos.quirurgico,   
-                tratamientos.paliativos    
-            ]
-        };
-
-        const resTratamientos = await client.query(tratamientos_query);
-        const NewTratamientos = resTratamientos.rows[0];
-
         await client.query('COMMIT');
 
         return {
             ...NewUserPatient,
             antecedentes: NewAntecedentes,
             antropometria: NewAntropometria,
-            tratamientos: NewTratamientos
         };
 
     }catch(error){

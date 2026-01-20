@@ -33,12 +33,6 @@ export const getAllPatient = async (req, res) => {
         
         const patients = await getPatients(doc_id);
 
-        if(patients.length === 0){
-            res.status(404).json({
-                msg: `no existen pacientes vinculados al doctor ${doc_id}. registrar pacientes para visualizarlos`
-            })
-        }
-
         res.status(200).json({
             ok: true,
             count: patients.length,
@@ -193,8 +187,7 @@ const {
     gender_p, 
     date_p,
     antropometria, 
-    antecedentes,
-    tratamientos 
+    antecedentes
 } = req.body;
 
 
@@ -234,6 +227,8 @@ try{
     //calculamos el imc y grasa corporal a partir de los datos de antropometria
     const antropometriaCalculada = CalculateAntropometria(antropometria, age_p, gender_p)
 
+    console.log(antropometriaCalculada)
+
     //constante donde guardamos los datos del pacientes
     const patientData = {
         doc_id,
@@ -245,8 +240,7 @@ try{
         gender_p,
         date_p,
         antropometria: antropometriaCalculada,
-        antecedentes,
-        tratamientos
+        antecedentes
     };
     
     const newPatient = await CreatePatient(patientData);
