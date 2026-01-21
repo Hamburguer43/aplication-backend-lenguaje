@@ -58,17 +58,17 @@ export const getPlanPaciente = async (req, res) => {
 
 export const CreatePLan = async (req, res) => {
 
-    const {DataPlan} = req.body
+    const planData = req.body
 
-    if (!DataPlan) {
+    if (!planData) {
         return res.status(400).json({ 
-            msg: "No se recibieron los datos del plan (DataPlan es requerido)." 
+            msg: "No se recibieron los datos del plan (planData es requerido)." 
         });
     }
 
     try{
 
-        const newPlan = await CreatePlanDieta(DataPlan);
+        const newPlan = await CreatePlanDieta(planData);
 
         return res.status(201).json({
             msg: "Plan de dieta creado exitosamente",

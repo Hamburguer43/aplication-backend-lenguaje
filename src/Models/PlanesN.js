@@ -87,7 +87,7 @@ export const getPlanDietaById = async (patientId) => {
     }
 };
 
-export const CreatePlanDieta = async (DataPLan) => {
+export const CreatePlanDieta = async (planData) => {
 
     const connect = await pool.connect();
 
@@ -99,7 +99,7 @@ export const CreatePlanDieta = async (DataPLan) => {
         estado,
         horariosemanal,
         detallehorario //array de recetas (cod_receta, nombre, dia, hora)
-    } = DataPLan
+    } = planData
 
     try{
 

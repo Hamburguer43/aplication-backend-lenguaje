@@ -171,7 +171,7 @@ try {
     const detalleReceta_query = 
     `
     INSERT INTO detallereceta
-    (cod_receta, id_alimento, cant_gr_alimento)
+    (cod_receta, id_alimento, cantidad)
     VALUES ($1, $2, $3)
     RETURNING *;
     `
@@ -181,7 +181,7 @@ try {
         const ResDetalle = await conect.query(detalleReceta_query, [
             cod_receta,
             alimento.id_alimento,
-            alimento.cant_gr_alimento
+            alimento.cantidad
         ]);
 
         detalle_result.push(ResDetalle.rows[0]);
