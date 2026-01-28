@@ -1,7 +1,6 @@
 import { text } from 'express';
 import pool from '../dataBase.js';
 
-//ya hicimos el cambio a la tabla doctor, me falta modificar el de update (cambiar la función a una mejor)
 
 // -- Obtener users ------------------------------------------------
 
