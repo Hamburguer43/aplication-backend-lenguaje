@@ -19,7 +19,8 @@ export const patiensData = async () => {
 export const getPatients = async (doc_id) => {
 
     const query = {
-        text:`SELECT * FROM patients
+        text:`SELECT p.*, s.grade_name, s.sub_section FROM patients as p
+        INNER JOIN sections as s on s.section_id = p.section_id 
         WHERE doc_id = $1`,
 
         values: [doc_id]
@@ -37,7 +38,8 @@ export const getPatientsId = async (patient_id) => {
 
     //Traer info del usuario
     const patient_query = {
-        text:`SELECT * FROM patients
+        text:`SELECT p.*, s.grade_name, s.sub_section FROM patients as p
+        INNER JOIN sections as s on s.section_id = p.section_id 
         WHERE patient_id = $1`,
 
         values: [id]
@@ -144,7 +146,8 @@ const {
     age_p,
     gender_p,
     create_p,
-    update_p = new Date()
+    update_p = new Date(),
+    section_id
 } = update
 
 try{
@@ -162,12 +165,13 @@ try{
             age_p =$6,
             gender_p =$7,
             create_p =$8,
-            update_p =$9
-        WHERE patient_id = $10
+            update_p =$9,
+            section_id =$10
+        WHERE patient_id = $11
         RETURNING *
         `,
 
-        values: [doc_id, name_p, email_p, first_name_p, last_name_p, age_p, gender_p, create_p, update_p, patient_id]
+        values: [doc_id, name_p, email_p, first_name_p, last_name_p, age_p, gender_p, create_p, update_p, section_id, patient_id]
     }
 
     const {rows} = await connect.query(update_patient_query);
@@ -201,6 +205,7 @@ export const CreatePatient = async(patientData) => {
         age_p, 
         gender_p, 
         date_p,
+        section_id,
 
         //datos de historial
         antropometria,
@@ -223,12 +228,12 @@ export const CreatePatient = async(patientData) => {
         // Query user -------------------------
         const patient_query = {
             text: `
-            INSERT INTO patients (doc_id, name_p, email_p, first_name_p, last_name_p, age_p, gender_p, date_p)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            INSERT INTO patients (doc_id, name_p, email_p, first_name_p, last_name_p, age_p, gender_p, date_p, section_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             RETURNING *
             `,
             
-            values: [doc_id, name_p, email_p, first_name_p, last_name_p, age_p, gender_p, date_p]
+            values: [doc_id, name_p, email_p, first_name_p, last_name_p, age_p, gender_p, date_p, section_id]
         }
 
         const resPatient = await client.query(patient_query);

@@ -186,6 +186,9 @@ const {
     last_name_p,  
     gender_p, 
     date_p,
+    section_id,
+
+    //datos de historial
     antropometria, 
     antecedentes
 } = req.body;
@@ -239,6 +242,7 @@ try{
         age_p,
         gender_p,
         date_p,
+        section_id,
         antropometria: antropometriaCalculada,
         antecedentes
     };
