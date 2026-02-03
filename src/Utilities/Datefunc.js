@@ -25,8 +25,15 @@ export const CalculateAntropometria = (antropometria, age_p, gender_p) => {
     } = antropometria;
 
 
-    if (!peso || !estatura || !age_p || !gender_p) {
-        return { imc: 0, grasa: 0, riesgo_metabolico: "Pendiente" };
+    if (peso == null || estatura == null || age_p == null || !gender_p) {
+        return { 
+            peso: peso || 0, 
+            estatura: estatura || 0, 
+            circ_abdominal: circ_abdominal || 0,
+            imc: 0, 
+            grasa: 0, 
+            riesgo_metabolico: "Pendiente" 
+        };
     }
 
     const estatura_m = estatura / 100;

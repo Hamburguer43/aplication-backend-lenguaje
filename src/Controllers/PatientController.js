@@ -230,7 +230,7 @@ try{
     //calculamos el imc y grasa corporal a partir de los datos de antropometria
     const antropometriaCalculada = CalculateAntropometria(antropometria, age_p, gender_p)
 
-    console.log(antropometriaCalculada)
+    console.log("antropometria calculada", antropometriaCalculada)
 
     //constante donde guardamos los datos del pacientes
     const patientData = {
