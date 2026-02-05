@@ -1,6 +1,8 @@
 
 export const calcularEdad = (fechaNacimiento) => {
     
+    console.log("Fecha de Nacimiento recibida:", fechaNacimiento);
+
     if (!fechaNacimiento) return 0;
 
     const hoy = new Date();

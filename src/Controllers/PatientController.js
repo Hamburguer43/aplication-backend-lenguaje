@@ -1,4 +1,4 @@
-import { deletePatient, findPatientEmailP, getPatients, UpdatePatient, CreatePatient, getPatientsId, patiensData } from "../Models/PatientsModels.js";
+import { deletePatient, getPatients, UpdatePatient, CreatePatient, getPatientsId, patiensData, ChangeState } from "../Models/PatientsModels.js";
 import { checkIdentityConflict, existsPatient } from "../Utilities/Validator.js";
 import {calcularEdad, CalculateAntropometria} from "../Utilities/Datefunc.js";
 
@@ -118,7 +118,7 @@ export const UpdateDataPatient = async (req, res) => {
 
 const patient_id = req.params.patient_id;
 const update = req.body;
-const { email_p, name_p } = update; 
+const { email_p, cedula_p } = update; 
   
    try{
 
@@ -131,8 +131,8 @@ const { email_p, name_p } = update;
         });
     }
 
-    //validacion de si existe el email o nombre de usuario
-    const validation = await checkIdentityConflict(email_p, name_p, patient_id);
+    //validacion de si existe el email o cedula
+    const validation = await checkIdentityConflict(email_p, cedula_p, patient_id);
 
     if (validation.length > 0) {
         const isEmailConflict = validation.some(c => c.email === email_p);
@@ -180,48 +180,40 @@ export const Create_Patient = async (req, res) => {
 
 const {
     doc_id,
-    name_p, 
+    cedula_p, 
     email_p, 
     first_name_p, 
     last_name_p,  
     gender_p, 
     date_p,
     section_id,
+    estado,
 
     //datos de historial
     antropometria, 
     antecedentes
 } = req.body;
 
-
 try{
     
-    const IfexistingUser = await findPatientEmailP({email_p, name_p});
+    const conflictos = await checkIdentityConflict(email_p, cedula_p);
 
-    if(IfexistingUser){
+    if (conflictos.length > 0) {
+       
+        const isEmailDoc = conflictos.some(c => c.tipo_conflicto === 'email_doctor');
+        const isCedulaPac = conflictos.some(c => c.tipo_conflicto === 'cedula_paciente');
 
-        if (IfexistingUser) {
-          
-            const isEmailDuplicate = IfexistingUser.email === email_p;
-            const isNameDuplicate = IfexistingUser.name === name_p;
-
-            let mensajeError = "";
-
-            if (isEmailDuplicate && isNameDuplicate) {
-                mensajeError = "El email y el nombre de usuario ya están registrados.";
-            } else if (isEmailDuplicate) {
-                mensajeError = "El correo electrónico ya está en uso.";
-            } else if (isNameDuplicate) {
-                mensajeError = "El nombre de usuario ya no está disponible.";
-            }
-
-            return res.status(409).json({
-                ok: false,
-                msg: mensajeError,
-
-            });
-        
+        let mensajeError = "";
+        if (isEmailDoc) {
+            mensajeError = "El correo electrónico pertenece a un doctor registrado.";
+        } else if (isCedulaPac) {
+            mensajeError = "La cédula ya está registrada para otro paciente.";
         }
+
+        return res.status(409).json({
+            ok: false,
+            msg: mensajeError,
+        });
     }   
 
     //calculamos la edad a partir de la fecha de nacimiento (date_p)
@@ -230,12 +222,10 @@ try{
     //calculamos el imc y grasa corporal a partir de los datos de antropometria
     const antropometriaCalculada = CalculateAntropometria(antropometria, age_p, gender_p)
 
-    console.log("antropometria calculada", antropometriaCalculada)
-
     //constante donde guardamos los datos del pacientes
     const patientData = {
         doc_id,
-        name_p,
+        cedula_p,
         email_p,
         first_name_p,
         last_name_p,
@@ -243,6 +233,7 @@ try{
         gender_p,
         date_p,
         section_id,
+        estado,
         antropometria: antropometriaCalculada,
         antecedentes
     };
@@ -292,3 +283,33 @@ try{
 }
 
 }
+
+export const Change_state = async (req, res) => {
+    const { patient_id } = req.params;
+    const { estado } = req.body; 
+
+    if (!estado) {
+        return res.status(400).json({ message: "El estado es requerido" });
+    }
+
+    try {
+        
+        const updateEstado = await ChangeState(patient_id, estado);
+
+        if (!updateEstado) {
+            return res.status(404).json({ message: "Paciente no encontrado" });
+        }
+
+        return res.status(200).json({
+            message: "Estado actualizado con éxito",
+            patient: updateEstado
+        });
+
+    } catch (error) {
+        console.error("Error en Change_state Controller:", error);
+        return res.status(500).json({ 
+            message: "Error interno del servidor",
+            error: error.message 
+        });
+    }
+};

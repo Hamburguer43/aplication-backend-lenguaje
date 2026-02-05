@@ -139,7 +139,7 @@ const connect = await pool.connect();
 
 const {
     doc_id,
-    name_p,
+    cedula_p,
     email_p,
     first_name_p,
     last_name_p,
@@ -158,20 +158,20 @@ try{
         text: `
         UPDATE patients
         SET doc_id = $1,
-            name_p =$2,
-            email_p =$3,
-            first_name_p =$4,
-            last_name_p =$5,
-            age_p =$6,
-            gender_p =$7,
-            create_p =$8,
-            update_p =$9,
-            section_id =$10
+            cedula_p = $2,
+            first_name_p = $3,
+            last_name_p = $4,
+            email_p = $5,
+            age_p = $6,
+            gender_p = $7,
+            section_id = $8,
+            create_p = $9,
+            update_p = $10
         WHERE patient_id = $11
         RETURNING *
         `,
 
-        values: [doc_id, name_p, email_p, first_name_p, last_name_p, age_p, gender_p, create_p, update_p, section_id, patient_id]
+        values: [doc_id, cedula_p, first_name_p, last_name_p, email_p, age_p, gender_p, section_id, create_p, update_p, patient_id]
     }
 
     const {rows} = await connect.query(update_patient_query);
@@ -198,7 +198,7 @@ export const CreatePatient = async(patientData) => {
     //desestructuramos los datos de patientData
     const {
         doc_id,
-        name_p,
+        cedula_p,
         email_p,
         first_name_p,
         last_name_p, 
@@ -206,6 +206,7 @@ export const CreatePatient = async(patientData) => {
         gender_p, 
         date_p,
         section_id,
+        estado,
 
         //datos de historial
         antropometria,
@@ -228,12 +229,12 @@ export const CreatePatient = async(patientData) => {
         // Query user -------------------------
         const patient_query = {
             text: `
-            INSERT INTO patients (doc_id, name_p, email_p, first_name_p, last_name_p, age_p, gender_p, date_p, section_id)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            INSERT INTO patients (doc_id, cedula_p, first_name_p, last_name_p, email_p, age_p, gender_p, date_p, section_id, estado)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             RETURNING *
             `,
             
-            values: [doc_id, name_p, email_p, first_name_p, last_name_p, age_p, gender_p, date_p, section_id]
+            values: [doc_id, cedula_p, first_name_p, last_name_p, email_p, age_p, gender_p, date_p, section_id, estado]
         }
 
         const resPatient = await client.query(patient_query);
@@ -324,34 +325,25 @@ export const CreatePatient = async(patientData) => {
 
 }
 
-// -- buscar email paciente por id -------------------------------------- *
-export const findPatientEmailP = async({email_p, name_p}) => {
+// -- cambio de estado por id -------------------------------------- *
+export const ChangeState = async(patient_id, estado) => {
 
-   const resDoc = await pool.query({
-        text: `SELECT email, username_doc FROM doctor WHERE email = $1 OR username_doc = $2`,
-        values: [email_p, name_p]
-    });
+const query = {
+    text: `
+    UPDATE patients
+    SET estado = $1
+    WHERE patient_id = $2
+    RETURNING *
+    `,
+    values: [estado, patient_id]
+}
 
-    const resPat = await pool.query({
-        text: `SELECT email_p, name_p FROM patients WHERE email_p = $1 OR name_p = $2`,
-        values: [email_p, name_p]
-    });
+try {
+    const { rows } = await pool.query(query);
+    return rows[0] || null;
+} catch (error) {
+    console.error("Error en ChangeState Model:", error);
+    throw error; 
+}
 
-    if (resDoc.rows.length > 0) {
-        return {
-            email: resDoc.rows[0].email,
-            name: resDoc.rows[0].username_doc,
-            origin: 'doctor' 
-        };
-    }
-
-    if (resPat.rows.length > 0) {
-        return {
-            email: resPat.rows[0].email_p,
-            name: resPat.rows[0].name_p,
-            origin: 'paciente'
-        };
-    }
-
-    return null;
 }

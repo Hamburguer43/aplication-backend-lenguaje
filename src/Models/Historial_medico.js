@@ -70,19 +70,26 @@ export const getHistorialById = async (patient_id) => {
 
 const historial_query = {
     text: `
-    select hm.*, 
-    p.email_p, p.first_name_p, p.last_name_p 
-    from historial_medico hm
-    INNER JOIN patients p
-    ON hm.patient_id = p.patient_id
+    SELECT 
+        hm.*, 
+        p.cedula_p, p.first_name_p, p.last_name_p,
+        a.*, 
+        ant.* 
+    FROM historial_medico hm
+    
+    INNER JOIN patients p ON hm.patient_id = p.patient_id
+    LEFT JOIN antropometria a ON hm.cod_hm = a.cod_hm
+    LEFT JOIN antecedentes ant ON hm.cod_hm = ant.cod_hm
+    
     WHERE p.patient_id = $1
+    ORDER BY hm.date_hm DESC
     `,
 
     values: [patient_id]
 };
 
-const {rows} = await pool.query(historial_query);
-return rows
+const res = await pool.query(historial_query);
+return res.rows
 
 }
 
