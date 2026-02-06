@@ -110,6 +110,8 @@ const {
     date_doc 
 } = req.body
 
+const rol = 1
+
     try{
 
         // Validacion de email ----------------------------------------
@@ -147,7 +149,8 @@ const {
             last_name,
             age: edad,
             gender,
-            date_doc
+            date_doc,
+            rol
         });
 
         const userCreated = newUser[0];
@@ -293,9 +296,12 @@ const {email, password: password_plain} = req.body;
 
         // Generar token jwt donde pasamos la informacion del user logeado
 
+        console.log("user", user)
+
         const token = jwt.sign({ 
             doc_id: user.doc_id,
             email: user.email, 
+            rol: user.nombre_rol
         }, 
             process.env.JWT_SECRET, // key secret
             

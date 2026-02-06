@@ -5,17 +5,32 @@ import pool from '../dataBase.js';
 // -- Obtener users ------------------------------------------------
 
 export const getUsers = async () => {
-
-    try{
-        const {rows} = await pool.query('SELECT * FROM Doctor');
-        return (rows);
-
-    }catch(error){
-        console.error("Error al obtener los doctores de la Db");
-        throw new Error("No se pudo obtener la lista de doctores");
+    try {
+        // Traemos el nombre del rol haciendo el JOIN que ya conocemos
+        const query = `
+            SELECT 
+            doc_id, 
+            username_doc, 
+            email, 
+            first_name, 
+            last_name, 
+            age, 
+            gender, 
+            TO_CHAR(date_doc, 'DD-MM-YYYY') as fecha_nacimiento,
+            TO_CHAR(create_doc, 'DD-MM-YYYY HH:MI AM') as fecha_registro,
+            update_doc,
+            r.nombre_rol
+            FROM Doctor d
+            JOIN roles r ON d.rol_id = r.rol_id
+            ORDER BY d.doc_id DESC
+        `;
+        const { rows } = await pool.query(query);
+        return rows;
+    } catch (error) {
+        console.error("Error al obtener los doctores:", error);
+        throw new Error("Error interno del servidor");
     }
-
-}; 
+};
 
 export const getUserById = async (doc_id) => {
 
@@ -41,18 +56,19 @@ export const createUsers = async({
     last_name, 
     age, 
     gender, 
-    date_doc
+    date_doc, 
+    rol
 }) => {
 
     const query = {
         
         text: `
-        INSERT INTO doctor (username_doc, email, password, first_name, last_name, age, gender, date_doc)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO doctor (username_doc, email, password, first_name, last_name, age, gender, date_doc, rol_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING *
         `,
 
-        values: [username_doc, email, password, first_name, last_name, age, gender, date_doc]
+        values: [username_doc, email, password, first_name, last_name, age, gender, date_doc, rol]
 
     }
 
@@ -152,8 +168,9 @@ export const findUserEmail = async({email}) => {
     const query = {
 
         text: `
-        SELECT email, password, doc_id FROM doctor
-        WHERE email = $1
+        SELECT d.email, d.doc_id, d.password, r.nombre_rol FROM Doctor d 
+        JOIN roles r ON d.rol_id = r.rol_id 
+        WHERE email = $1;
         `,
         
         values: [email]

@@ -36,6 +36,7 @@ routerUser.get('/profile', verifyToken, (req, res) => {
         userData: {
             doc_id: req.user.doc_id, // Acceso desde req.user
             email: req.user.email,
+            rol: req.user.rol
         }
     });
 })
