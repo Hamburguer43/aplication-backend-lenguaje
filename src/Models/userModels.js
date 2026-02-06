@@ -36,7 +36,20 @@ export const getUserById = async (doc_id) => {
 
 const user_query = {
     text: `
-    SELECT * FROM doctor
+    SELECT 
+    doc_id, 
+    username_doc, 
+    email, 
+    first_name, 
+    last_name, 
+    age, 
+    gender, 
+    TO_CHAR(date_doc, 'DD-MM-YYYY') as fecha_nacimiento,
+    TO_CHAR(create_doc, 'DD-MM-YYYY HH:MI AM') as fecha_registro,
+    update_doc,
+    r.nombre_rol
+    FROM Doctor d
+    JOIN roles r ON d.rol_id = r.rol_id
     WHERE doc_id = $1
     `,
     values: [doc_id]

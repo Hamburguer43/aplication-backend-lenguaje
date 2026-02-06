@@ -107,10 +107,9 @@ const {
     first_name, 
     last_name,  
     gender, 
-    date_doc 
+    date_doc,
+    rol 
 } = req.body
-
-const rol = 1
 
     try{
 
@@ -154,26 +153,6 @@ const rol = 1
         });
 
         const userCreated = newUser[0];
-
-        // Crear token --------------------------
-        const token = jwt.sign({
-            doc_id: userCreated.doc_id, 
-            email: userCreated.email,
-        }, 
-            process.env.JWT_SECRET,
-            {
-                expiresIn: "1h"
-            }
-        );
-
-        // guardando el token en la cookie aseguramos que solo se envie en nuestro dominio, es decir, es nuestrar peticiones. Dandole una capa de seguridad al token, evita que el cookie se envie a otro sitio
-
-        res.cookie('access_token', token, {
-            httpOnly: true, // la cookie solo se accede en el servidor
-            secure: process.env.NODE_ENV === 'production', 
-            maxAge: 1000 * 60 * 60,
-            sameSite: 'strict',
-        })
 
         return res.status(201).json({
             ok: true,
