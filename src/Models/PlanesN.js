@@ -95,6 +95,7 @@ export const CreatePlanDieta = async (planData) => {
         patient_id,
         nameplan,
         objetivo,
+        observaciones,
         create_plan = new Date(),
         estado,
         horariosemanal,
@@ -116,10 +117,10 @@ export const CreatePlanDieta = async (planData) => {
 
         // INSERT en plan dieta ----------------------------------------------------------
         const resPlan = await connect.query(
-            `INSERT INTO planDieta (patient_id, nameplan, objetivo, create_plan, estado) 
-             VALUES ($1, $2, $3, $4, $5) 
+            `INSERT INTO planDieta (patient_id, nameplan, objetivo, create_plan, estado, observaciones) 
+             VALUES ($1, $2, $3, $4, $5, $6) 
              RETURNING id_plan`,
-            [patient_id, nameplan, objetivo, create_plan, estado]
+            [patient_id, nameplan, objetivo, create_plan, estado, observaciones]
         );
         const id_plan = resPlan.rows[0].id_plan
 

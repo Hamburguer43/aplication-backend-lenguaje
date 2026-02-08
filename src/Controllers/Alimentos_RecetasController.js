@@ -206,6 +206,7 @@ export const create_receta = async (req, res) => {
         nombre,
         descripcion,
         observacion,
+        etiqueta,
         Macros,
         fecha_creacion,
         detalle_receta,
@@ -225,6 +226,7 @@ export const create_receta = async (req, res) => {
             nombre,
             descripcion,
             observacion,
+            etiqueta,
             Macros,
             fecha_creacion,
             detalle_receta //array de alimentos

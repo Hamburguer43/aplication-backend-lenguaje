@@ -145,6 +145,7 @@ const {
     nombre,
     descripcion,
     observacion,
+    etiqueta,
     Macros,
     fecha_creacion = new Date(),
     detalle_receta
@@ -157,11 +158,11 @@ try {
     const recetas_query = {
     text: `
     INSERT INTO recetas
-    (nombre, descripcion, observacion, calorias_total, proteinas_total, carbohidratos_total, grasas_total, fecha_creacion)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    (nombre, descripcion, observacion, calorias_total, proteinas_total, carbohidratos_total, grasas_total, fecha_creacion, etiqueta)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING *;
     `,
-    values: [nombre, descripcion, observacion, Macros.calorias_total, Macros.proteinas_total, Macros.carbohidratos_total, Macros.grasas_total,  fecha_creacion]
+    values: [nombre, descripcion, observacion, Macros.calorias_total, Macros.proteinas_total, Macros.carbohidratos_total, Macros.grasas_total,  fecha_creacion, etiqueta]
     };
 
     const resReceta = await conect.query(recetas_query);
