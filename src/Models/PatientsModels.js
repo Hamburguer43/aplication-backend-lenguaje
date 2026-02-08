@@ -17,18 +17,41 @@ export const patiensData = async () => {
 }
 
 export const getPatients = async (doc_id) => {
-
     const query = {
-        text:`SELECT p.*, s.grade_name, s.sub_section FROM patients as p
-        INNER JOIN sections as s on s.section_id = p.section_id 
-        WHERE doc_id = $1`,
+        text: `
+            SELECT 
+                p.*, 
+                s.grade_name, 
+                s.sub_section,
+                ultimo_hm.cod_hm,
+                antro.peso,
+                antro.estatura,
+                antro.imc,
+                antro.grasa,
+                antro.fecha_medicion
+            FROM patients as p
+            INNER JOIN sections as s ON s.section_id = p.section_id 
+            
+            -- Buscamos el último historial médico para cada paciente
+            LEFT JOIN LATERAL (
+                SELECT cod_hm 
+                FROM historial_medico 
+                WHERE patient_id = p.patient_id 
+                ORDER BY date_hm DESC 
+                LIMIT 1
+            ) AS ultimo_hm ON TRUE
 
+            -- Obtenemos la antropometría vinculada a ese historial específico
+            LEFT JOIN antropometria as antro ON antro.cod_hm = ultimo_hm.cod_hm
+            
+            WHERE p.doc_id = $1
+            ORDER BY p.last_name_p ASC
+        `,
         values: [doc_id]
     }
 
-    const {rows} = await pool.query(query);
+    const { rows } = await pool.query(query);
     return rows;
-
 };
 
 // -- obtener patient por id ------------------------------------------ *

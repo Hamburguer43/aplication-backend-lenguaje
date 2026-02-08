@@ -67,31 +67,96 @@ return rows
 }
 
 export const getHistorialById = async (patient_id) => {
+    const query = {
+        text: `
+            SELECT 
+                -- Datos del Paciente (Tabla Patients)
+                p.patient_id, p.doc_id, p.cedula_p, p.first_name_p, p.last_name_p, 
+                p.email_p, p.age_p, p.gender_p, p.date_p, p.create_p, p.update_p,
+                
+                -- Datos de la Sección (Tabla Sections)
+                s.grade_name, s.sub_section,
+                
+                -- Datos del Historial (Tabla historial_medico)
+                hm.cod_hm, hm.date_hm,
+                
+                -- Datos de Antropometría (Tabla antropometria)
+                a.id AS antro_id, a.peso, a.estatura, a.imc, a.grasa, 
+                a.circ_abdominal, a.fecha_medicion,
+                
+                -- Datos de Antecedentes (Tabla antecedentes)
+                ant.id AS ante_id, ant.motivo, ant.cardiovascular, ant.endocrinos, 
+                ant.excrecion, ant.gastrointestinales, ant.ginecologicos, 
+                ant.hemato_oncologicos, ant.inmunologicos, ant.piel, 
+                ant.musculo_esqueleticos, ant.neurologicos, ant.psicologicos, 
+                ant.respiratorios, ant.otros
 
-const historial_query = {
-    text: `
-    SELECT 
-        hm.*, 
-        p.cedula_p, p.first_name_p, p.last_name_p,
-        a.*, 
-        ant.* 
-    FROM historial_medico hm
-    
-    INNER JOIN patients p ON hm.patient_id = p.patient_id
-    LEFT JOIN antropometria a ON hm.cod_hm = a.cod_hm
-    LEFT JOIN antecedentes ant ON hm.cod_hm = ant.cod_hm
-    
-    WHERE p.patient_id = $1
-    ORDER BY hm.date_hm DESC
-    `,
+            FROM Patients p
+            INNER JOIN Sections s ON p.section_id = s.section_id
+            INNER JOIN historial_medico hm ON p.patient_id = hm.patient_id
+            LEFT JOIN antropometria a ON hm.cod_hm = a.cod_hm
+            LEFT JOIN antecedentes ant ON hm.cod_hm = ant.cod_hm
+            
+            WHERE p.patient_id = $1
+            ORDER BY hm.date_hm DESC
+        `,
+        values: [patient_id]
+    };
 
-    values: [patient_id]
+    const res = await pool.query(query);
+
+    // Transformamos las filas planas en la estructura de objetos que tu HTML espera
+    return res.rows.map(row => ({
+        patient_id: row.patient_id,
+        doc_id: row.doc_id,
+        cedula_p: row.cedula_p,
+        first_name_p: row.first_name_p,
+        last_name_p: row.last_name_p,
+        email_p: row.email_p,
+        age_p: row.age_p,
+        gender_p: row.gender_p,
+        date_p: row.date_p,
+        section_id: row.section_id,
+        create_p: row.create_p,
+        update_p: row.update_p,
+        grade_name: row.grade_name,
+        sub_section: row.sub_section,
+        cod_hm: row.cod_hm,
+        
+        // Objeto anidado de Antropometría
+        antropometria: {
+            id: row.antro_id,
+            cod_hm: row.cod_hm,
+            peso: row.peso,
+            estatura: row.estatura,
+            imc: row.imc,
+            grasa: row.grasa,
+            circ_abdominal: row.circ_abdominal,
+            fecha_medicion: row.fecha_medicion,
+            riesgo_metabolico: row.imc > 25 ? 'Sobrepeso' : (row.imc < 18.5 ? 'Bajo Peso' : 'Normal')
+        },
+
+        // Objeto anidado de Antecedentes
+        antecedentes: {
+            id: row.ante_id,
+            cod_hm: row.cod_hm,
+            motivo: row.motivo,
+            cardiovascular: row.cardiovascular,
+            endocrinos: row.endocrinos,
+            excrecion: row.excrecion,
+            gastrointestinales: row.gastrointestinales,
+            ginecologicos: row.ginecologicos,
+            hemato_oncologicos: row.hemato_oncologicos,
+            inmunologicos: row.inmunologicos,
+            piel: row.piel,
+            musculo_esqueleticos: row.musculo_esqueleticos,
+            neurologicos: row.neurologicos,
+            psicologicos: row.psicologicos,
+            respiratorios: row.respiratorios,
+            otros: row.otros
+        }
+    }));
 };
-
-const res = await pool.query(historial_query);
-return res.rows
-
-}
 
 export const createHC = async (antecedentes, antropometria, patient_id) => {
     

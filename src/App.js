@@ -9,6 +9,7 @@ import routerPatient from './Routes/PatientRoutes.js';
 import routerHistorialMedico from './Routes/HistorialMedicoRoutes.js';
 import routerAlimentos from './Routes/Alimentos_RecetasRoutes.js';
 import routerPlanesN from './Routes/PlanesNRoutes.js';
+import routerPdf from './Routes/PdfRoutes.js';
 
 const app = express();
 
@@ -67,5 +68,8 @@ app.use('/api/v1/AlimentosRecetas', routerAlimentos);
 
 // -- Ruta Planes nutricionales -------------------------------------------
 app.use('/api/v1/PlanesN', routerPlanesN);
+
+// -- Ruta Generar Pdf's ----------------------------------------------------
+app.use('/api/v1/PDF', routerPdf);
 
 export default app;
