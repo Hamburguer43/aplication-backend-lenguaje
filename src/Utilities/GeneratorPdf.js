@@ -1,6 +1,9 @@
 import puppeteer from 'puppeteer';
 
 export const generatePDF = async (htmlContent) => {
+    
+    console.log("Iniciando Puppeteer con cache en:", process.env.PUPPETEER_CACHE_DIR);
+
     const browser = await puppeteer.launch({ 
         headless: "new",
         
