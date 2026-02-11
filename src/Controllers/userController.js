@@ -292,10 +292,10 @@ const {email, password: password_plain} = req.body;
         // guardando el token en la cookie aseguramos que solo se envie en nuestro dominio, es decir, es nuestrar peticiones. Dandole una capa de seguridad al token, evita que el cookie se envie a otro sitio
 
         res.cookie('access_token', token, {
-            httpOnly: true, // la cookie solo se accede en el servidor
+            httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             maxAge: 1000 * 60 * 60,
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none': 'lax'
         })
 
         return res.status(200).json({
